@@ -39,10 +39,18 @@ def open_file():
     highest200=0
     highest100=0
     highest30=0
+
+    lowest30=0
     
     x_mean30=[]
     x_mean100=[]
     x_mean200=[]
+
+    d_mean30=[]
+    d_mean100=[]
+    d_mean200=[]
+    d_l_mean30=[]
+    
     diff=[]
     for x in range(2,len(xarr)):
         try:
@@ -73,16 +81,37 @@ def open_file():
 
         if(x_mean200[len(x_mean200)-1]>x_mean30[len(x_mean30)-1] and x_mean200[len(x_mean200)-1]>x_mean100[len(x_mean100)-1]):
             highest200=highest200+1                                                
+            if((x+30)<len(xarr)):
+                d_mean200.append(1-xarr[x]/xarr[x+30])
 
         if(x_mean30[len(x_mean30)-1]>x_mean200[len(x_mean200)-1] and x_mean30[len(x_mean30)-1]>x_mean100[len(x_mean100)-1]):
-            highest30=highest30+1                                                
+            highest30=highest30+1
+            if((x+30)<len(xarr)):
+                d_mean30.append(1-xarr[x]/xarr[x+30])
 
         if(x_mean100[len(x_mean100)-1]>x_mean30[len(x_mean30)-1] and x_mean100[len(x_mean100)-1]>x_mean200[len(x_mean200)-1]):
             highest100=highest100+1                                                
+            if((x+30)<len(xarr)):
+                d_mean100.append(1-xarr[x]/xarr[x+30])
+
+        if(x_mean30[len(x_mean30)-1]<x_mean200[len(x_mean200)-1] and x_mean30[len(x_mean30)-1]<x_mean100[len(x_mean100)-1]):
+            lowest30=lowest30+1                                                
+            if((x+30)<len(xarr)):
+                d_l_mean30.append(1-xarr[x]/xarr[x+30])
 
     sim_s=[]
     w_cnt=0
     b_cnt=0
+
+    d_mean30=sorted(d_mean30)
+    d_mean100=sorted(d_mean100)
+    d_mean200=sorted(d_mean200)
+    d_l_mean30=sorted(d_l_mean30)
+
+    print("d_mean30=%s" %  (d_mean30[int(len(d_mean30)/2)]))
+    print("d_mean100=%s" % (d_mean100[int(len(d_mean100)/2)]))
+    print("d_mean200=%s" % (d_mean200[int(len(d_mean200)/2)]))
+    print("d_l_mean30=%s" %  (d_l_mean30[int(len(d_l_mean30)/2)]))
 
     sim_start=int((len(xarr)*3)/4)
 
@@ -124,6 +153,7 @@ def open_file():
     w.create_text(100,310,text="h30=%f" %  (100.0*highest30/(highest30+highest100+highest200)) )
     w.create_text(100,330,text="h100=%f" % (100.0*highest100/(highest30+highest100+highest200)) )
     w.create_text(100,350,text="h200=%f" % (100.0*highest200/(highest30+highest100+highest200)) )
+    w.create_text(100,370,text="l30=%f" % (100.0*lowest30/(highest30+highest100+highest200)) )
 
     c_max=max(xarr)
     fac_n=200/max(xarr)
