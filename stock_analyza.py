@@ -16,22 +16,32 @@ def open_file():
     master.stock_file = askopenfilename()
 
     clear_screen()
-    
+
+    master.title(master.stock_file);
+
     choices={}
     fh=open(master.stock_file, encoding="latin-1")
     xarr=[]
+    labels=[]
     for line in fh.readlines()[1:]:
         line=line.strip()
         vals=line.split(",")
         if(len(vals)==7):
             try:
                 xarr.append(float(vals[1]))
+                labels.append(vals[0])
             except:
                 pass
             #xarr.append(30*math.log(float(vals[1])))
 
+    #xarr=math.log(xarr)
+
+    highest200=0
+    highest100=0
+    highest30=0
+    
     x_mean30=[]
-    x_mean50=[]
+    x_mean100=[]
     x_mean200=[]
     diff=[]
     for x in range(2,len(xarr)):
@@ -47,12 +57,12 @@ def open_file():
             c_sel=xarr[1:30]
             x_mean30.append(sum(c_sel)/len(c_sel))
 
-        if(x>50):
-            c_sel=xarr[x-50:x]
-            x_mean50.append(sum(c_sel)/len(c_sel))
+        if(x>100):
+            c_sel=xarr[x-100:x]
+            x_mean100.append(sum(c_sel)/len(c_sel))
         else:
-            c_sel=xarr[1:50]
-            x_mean50.append(sum(c_sel)/len(c_sel))
+            c_sel=xarr[1:100]
+            x_mean100.append(sum(c_sel)/len(c_sel))
 
         if(x>200):
             c_sel=xarr[x-200:x]
@@ -60,6 +70,15 @@ def open_file():
         else:
             c_sel=xarr[1:200]
             x_mean200.append(sum(c_sel)/len(c_sel))
+
+        if(x_mean200[len(x_mean200)-1]>x_mean30[len(x_mean30)-1] and x_mean200[len(x_mean200)-1]>x_mean100[len(x_mean100)-1]):
+            highest200=highest200+1                                                
+
+        if(x_mean30[len(x_mean30)-1]>x_mean200[len(x_mean200)-1] and x_mean30[len(x_mean30)-1]>x_mean100[len(x_mean100)-1]):
+            highest30=highest30+1                                                
+
+        if(x_mean100[len(x_mean100)-1]>x_mean30[len(x_mean30)-1] and x_mean100[len(x_mean100)-1]>x_mean200[len(x_mean200)-1]):
+            highest100=highest100+1                                                
 
     sim_s=[]
     w_cnt=0
@@ -89,20 +108,24 @@ def open_file():
     print("better_in_cases=%f" % b_cnt)
     print("worse_in_cases=%f" % w_cnt)
     print("m30=%s" % x_mean30[len(x_mean30)-1])
-    print("m50=%s" % x_mean50[len(x_mean50)-1])
+    print("m100=%s" % x_mean100[len(x_mean100)-1])
     print("m200=%s" % x_mean200[len(x_mean200)-1])
 
     c_f=float(w_cnt)/float(b_cnt+w_cnt)
-    w.create_text(100,250,text="p_val=%f" % c_f )
+    w.create_text(100,150,text="p_val=%f" % c_f )
     c_f2=float(b_cnt)/float(b_cnt+w_cnt)
-    w.create_text(100,270,text="p_val=%f" % c_f2 )
-    w.create_text(100,290,text="SIMULATION (avg)=%f" % my_avg )
-    w.create_text(100,310,text="SIMULATION (median)=%f" % my_median )
-    w.create_text(100,330,text="ACTUAL=%f" % xarr[len(xarr)-1] )
-    w.create_text(100,350,text="m30=%f" %  x_mean30[len(x_mean30)-1] )
-    w.create_text(100,370,text="m50=%f" %  x_mean50[len(x_mean50)-1] )
-    w.create_text(100,390,text="m200=%f" % x_mean200[len(x_mean200)-1] )
+    w.create_text(100,170,text="p_val=%f" % c_f2 )
+    w.create_text(100,190,text="SIMULATION (avg)=%f" % my_avg )
+    w.create_text(100,210,text="SIMULATION (median)=%f" % my_median )
+    w.create_text(100,230,text="ACTUAL=%f" % xarr[len(xarr)-1] )
+    w.create_text(100,250,text="m30=%f" %  x_mean30[len(x_mean30)-1] )
+    w.create_text(100,270,text="m100=%f" %  x_mean100[len(x_mean100)-1] )
+    w.create_text(100,290,text="m200=%f" % x_mean200[len(x_mean200)-1] )
+    w.create_text(100,310,text="h30=%f" %  (100.0*highest30/(highest30+highest100+highest200)) )
+    w.create_text(100,330,text="h100=%f" % (100.0*highest100/(highest30+highest100+highest200)) )
+    w.create_text(100,350,text="h200=%f" % (100.0*highest200/(highest30+highest100+highest200)) )
 
+    c_max=max(xarr)
     fac_n=200/max(xarr)
 
     c_width=1
@@ -112,15 +135,24 @@ def open_file():
     for x in range(0,len(x_mean30)):
         w.create_line(100+c_width*x,600-x_mean30[x]*fac_n,100+c_width*(x+1),600-x_mean30[x]*fac_n,fill="blue")
 
-    for x in range(0,len(x_mean50)):
-        w.create_line(100+c_width*x,600-x_mean50[x]*fac_n,100+c_width*(x+1),600-x_mean50[x]*fac_n,fill="orange")
+    for x in range(0,len(x_mean100)):
+        w.create_line(100+c_width*x,600-x_mean100[x]*fac_n,100+c_width*(x+1),600-x_mean100[x]*fac_n,fill="orange")
 
     for x in range(0,len(x_mean200)):
         w.create_line(100+c_width*x,600-x_mean200[x]*fac_n,100+c_width*(x+1),600-x_mean200[x]*fac_n,fill="red")
+        if(x%100==0):
+            w.create_text(100+c_width*x,100,text=labels[x])
 
-    w.create_text(100,200,text="200 days",fill="red")
-    w.create_text(150,200,text="50 days",fill="orange")
-    w.create_text(200,200,text="30 days",fill="blue")
+    w.create_line(100,600,100,600-200,fill='blue')
+    w.create_text(100,600-0,text=str(0),fill='blue')
+    w.create_text(100,600-50,text=str(c_max*50/200),fill='blue')
+    w.create_text(100,600-100,text=str(c_max*100/200),fill='blue')
+    w.create_text(100,600-150,text=str(c_max*150/200),fill='blue')
+    w.create_text(100,600-200,text=str(c_max),fill='blue')
+
+    w.create_text(400,200,text="200 days",fill="red")
+    w.create_text(450,200,text="100 days",fill="orange")
+    w.create_text(500,200,text="30 days",fill="blue")
 
     #for x in range(0,len(diff)):
     #    w.create_rectangle(100+1*x,500-5*diff[x],100+1*(x+1),500+0,fill="white")
