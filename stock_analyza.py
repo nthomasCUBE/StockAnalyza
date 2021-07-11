@@ -2,6 +2,7 @@
 #   StockAnalyza v0.1
 #
 #   2020/10/22: working on the relative genes tagged per total genes in Bin
+#   2021/07/11: taking 'Close' Date not 'Opening' Date
 
 from tkinter import *
 from tkinter.filedialog import askopenfilename
@@ -28,11 +29,11 @@ def open_file():
         vals=line.split(",")
         if(len(vals)==7):
             try:
-                xarr.append(float(vals[1]))
+                xarr.append(float(vals[4]))
                 labels.append(vals[0])
             except:
                 pass
-            #xarr.append(30*math.log(float(vals[1])))
+            #xarr.append(30*math.log(float(vals[4])))
 
     #xarr=math.log(xarr)
 
